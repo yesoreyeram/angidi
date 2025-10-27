@@ -78,7 +78,7 @@ func main() {
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	log.Printf("Server starting on %s", addr)
 	log.Printf("Login at: http://localhost:%s/login", cfg.Server.Port)
-	log.Printf("Superuser credentials - Email: %s, Password: %s", cfg.SuperUser.Email, cfg.SuperUser.Password)
+	log.Printf("Superuser email: %s (Password is configured via SUPERUSER_PASSWORD env var)", cfg.SuperUser.Email)
 	
 	server := &http.Server{
 		Addr:         addr,

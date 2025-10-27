@@ -157,7 +157,7 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	token, err := h.userService.ForgotPassword(&req)
+	_, err := h.userService.ForgotPassword(&req)
 	if err != nil {
 		respondJSON(w, http.StatusInternalServerError, domain.ErrorResponse{
 			Error:   "password_reset_failed",
@@ -166,13 +166,10 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	// In a real application, the token would be sent via email
-	// For development/testing, we'll return it in the response
+	// Always return success to prevent email enumeration
+	// In production, the token would be sent via email
 	respondJSON(w, http.StatusOK, domain.SuccessResponse{
-		Message: "Password reset instructions sent to your email",
-		Data: map[string]string{
-			"reset_token": token, // Only for development
-		},
+		Message: "If an account exists with this email, password reset instructions have been sent",
 	})
 }
 
@@ -216,6 +213,12 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 // setSessionCookie sets a session cookie
+// NOTE: This is a simplified session implementation for demonstration purposes.
+// In production, use:
+// 1. Signed/encrypted session tokens (e.g., using gorilla/sessions)
+// 2. Random session IDs mapped to user data in a session store (Redis, database)
+// 3. Session rotation on privilege escalation
+// 4. Proper session expiration and cleanup
 func (h *UserHandler) setSessionCookie(w http.ResponseWriter, userID string, maxAge int) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     h.config.Session.CookieName,
